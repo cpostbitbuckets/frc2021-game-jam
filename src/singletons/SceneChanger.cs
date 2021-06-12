@@ -81,7 +81,9 @@ public class SceneChanger : Node2D
         playerCanvasLayer.AddChild(playerNode);
 
         // delete player from current level (fully overlapped by the newly re-parented player)
-        currentLevelNode.GetNode("Player").QueueFree();
+        var currentPlayerNode = currentLevelNode.GetNode("Player");
+        currentLevelNode.RemoveChild(currentPlayerNode);
+        currentPlayerNode.QueueFree();
 
         // move current level out of screen and next level onto it
         tween.InterpolateProperty(nextLevelChild, "position", null, Vector2.Zero, 2);

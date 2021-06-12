@@ -9,12 +9,34 @@ public class Boomerang : Path2D
     Tween tween;
     Path2D path;
     PathFollow2D pathFollow2D;
+    CollisionShape2D collisionShape2D;
 
     public override void _Ready()
     {
         path = this;
         tween = GetNode<Tween>("Tween");
         pathFollow2D = GetNode<PathFollow2D>("PathFollow2D");
+
+        collisionShape2D = GetNode<CollisionShape2D>("PathFollow2D/BoomerangBody/CollisionShape2D");
+        Events.levelCompleted += OnLevelCompleted;
+        Events.nextLevelBegun += OnLevelBegun;
+    }
+
+    public override void _ExitTree()
+    {
+        base._ExitTree();
+        Events.levelCompleted -= OnLevelCompleted;
+        Events.nextLevelBegun -= OnLevelBegun;
+    }
+
+    void OnLevelCompleted()
+    {
+        collisionShape2D.Disabled = true;
+    }
+
+    void OnLevelBegun()
+    {
+        collisionShape2D.Disabled = false;
     }
 
     async public void Throw(double angle, float force)
@@ -72,8 +94,9 @@ public class Boomerang : Path2D
 
         await ToSignal(tween, "tween_completed");
 
-        Events.PublishLevelCompleted();
+        GetParent()?.RemoveChild(this);
         QueueFree();
+        Events.PublishLevelCompleted();
 
     }
 
